@@ -1483,14 +1483,13 @@ FunctionDeclaration(path) {
 
 ### <a id="toc-replacing-a-parent"></a>替换父节点
 
-只需使用parentPath：` path.parentPath </>调用<code> replaceWith </>即可</p>
+只需使用parentPath：`path.parentPath` </>调用<code> `replaceWith` </>即可</p>
 
 <pre><code class="js">BinaryExpression(path) {
   path.parentPath.replaceWith(
     t.expressionStatement(t.stringLiteral("Anyway the wind blows, doesn't really matter to me, to me."))
   );
-}
-`</pre> 
+}</pre> 
 
 ```diff
   function square(n) {
