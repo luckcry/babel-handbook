@@ -61,6 +61,7 @@
   * [插件选项](#toc-plugin-options) 
       * [插件的准备和收尾工作](#toc-pre-and-post-in-plugins)
       * [在插件中启用其他语法](#toc-enabling-syntax-in-plugins)
+      * [抛出一个语法错误](#toc-throwing-a-syntax-error)
   * [构建节点](#toc-building-nodes)
   * [最佳实践](#toc-best-practices) 
       * [尽量避免遍历抽象语法树（AST）](#toc-avoid-traversing-the-ast-as-much-as-possible)
@@ -74,11 +75,11 @@
 
 Babel 是一个通用的多功能的 JavaScript 编译器。此外它还拥有众多模块可用于不同形式的静态分析。
 
-> 静态分析是在不需要执行代码的前提下对代码进行分析的处理过程 （执行代码的同时进行代码分析即是动态分析）。 静态分析的目的是多种多样的， 它可用于语法检查，编译，代码高亮，代码转换，优化，压缩等等场景。
+ 静态分析是在不需要执行代码的前提下对代码进行分析的处理过程 （执行代码的同时进行代码分析即是动态分析）。 静态分析的目的是多种多样的， 它可用于语法检查，编译，代码高亮，代码转换，优化，压缩等等场景。
 
 你可以使用 Babel 创建多种类型的工具来帮助你更有效率并且写出更好的程序。
 
-> ***在 Twitter 上关注 [@thejameskyle](https://twitter.com/thejameskyle)，第一时间获取更新。***
+ ***在 Twitter 上关注 [@thejameskyle](https://twitter.com/thejameskyle)，第一时间获取更新。***
 
 * * *
 
@@ -86,11 +87,11 @@ Babel 是一个通用的多功能的 JavaScript 编译器。此外它还拥有�
 
 Babel 是 JavaScript 编译器，更确切地说是源码到源码的编译器，通常也叫做“转换编译器（transpiler）”。 意思是说你为 Babel 提供一些 JavaScript 代码，Babel 更改这些代码，然后返回给你新生成的代码。
 
-## <a id="toc-asts"></a>抽象语法树（ASTs）
+### <a id="toc-asts"></a>抽象语法树（ASTs）
 
 这个处理过程中的每一步都涉及到创建或是操作[抽象语法树](https://en.wikipedia.org/wiki/Abstract_syntax_tree)，亦称 AST。
 
-> Babel 使用一个基于 [ESTree](https://github.com/estree/estree) 并修改过的 AST，它的内核说明文档可以在[这里](https://github. com/babel/babel/blob/master/doc/ast/spec. md)找到。.
+ Babel 使用一个基于 [ESTree](https://github.com/estree/estree) 并修改过的 AST，它的内核说明文档可以在[这里](https://github. com/babel/babel/blob/master/doc/ast/spec. md)找到。.
 
 ```js
 function square(n) {
@@ -98,7 +99,7 @@ function square(n) {
 }
 ```
 
-> [AST Explorer](http://astexplorer.net/) 可以让你对 AST 节点有一个更好的感性认识。 [这里](http://astexplorer.net/#/Z1exs6BWMq)是上述代码的一个示例链接。
+ [AST Explorer](http://astexplorer.net/) 可以让你对 AST 节点有一个更好的感性认识。 [这里](http://astexplorer.net/#/Z1exs6BWMq)是上述代码的一个示例链接。
 
 这个程序可以被表示成如下的一棵树：
 
@@ -186,7 +187,7 @@ function square(n) {
 }
 ```
 
-> 注意：出于简化的目的移除了某些属性
+ 注意：出于简化的目的移除了某些属性
 
 这样的每一层结构也被叫做 **节点（Node）**。 一个 AST 可以由单一的节点或是成百上千个节点构成。 它们组合在一起可以描述用于静态分析的程序语法。
 
@@ -223,7 +224,7 @@ Babel 还为每个节点额外生成了一些属性，用于描述该节点在�
 
 每一个节点都会有 `start`，`end`，`loc` 这几个属性。
 
-## <a id="toc-stages-of-babel"></a>Babel 的处理步骤
+### <a id="toc-stages-of-babel"></a>Babel 的处理步骤
 
 Babel 的三个主要处理步骤分别是： **解析（parse）**，**转换（transform）**，**生成（generate）**。.
 
@@ -287,7 +288,7 @@ n * n;
 
 代码生成其实很简单：深度优先遍历整个 AST，然后构建可以表示转换后代码的字符串。
 
-## <a id="toc-traversal"></a>遍历
+### <a id="toc-traversal"></a>遍历
 
 想要转换 AST 你需要进行递归的[树形遍历](https://en.wikipedia.org/wiki/Tree_traversal)。
 
@@ -358,7 +359,7 @@ visitor.MemberExpression = function() {};
 visitor.FunctionDeclaration = function() {}
 ```
 
-> **注意**： `Identifier() { ... }` 是 `Identifier: { enter() { ... } }` 的简写形式。.
+ **注意**： `Identifier() { ... }` 是 `Identifier: { enter() { ... } }` 的简写形式。.
 
 这是一个简单的访问者，把它用于遍历中时，每当在树中遇见一个 `Identifier` 的时候会调用 `Identifier()` 方法。
 
@@ -744,9 +745,9 @@ function scopeOne() {
 
 Babel 实际上是一组模块的集合。本节我们将探索一些主要的模块，解释它们是做什么的以及如何使用它们。
 
-> 注意：本节内容不是详细的 API 文档的替代品，正式的 API 文档将很快提供出来。
+ 注意：本节内容不是详细的 API 文档的替代品，正式的 API 文档将很快提供出来。
 
-## <a id="toc-babylon"></a>[`babylon`](https://github.com/babel/babylon)
+### <a id="toc-babylon"></a>[`babylon`](https://github.com/babel/babylon)
 
 Babylon 是 Babel 的解析器。最初是 从Acorn项目fork出来的。Acorn非常快，易于使用，并且针对非标准特性(以及那些未来的标准特性) 设计了一个基于插件的架构。
 
@@ -788,13 +789,13 @@ babylon.parse(code, {
 
 `sourceType` 可以是 `"module"` 或者 `"script"`，它表示 Babylon 应该用哪种模式来解析。 `"module"` 将会在严格模式下解析并且允许模块定义，`"script"` 则不会。
 
-> **注意：** `sourceType` 的默认值是 `"script"` 并且在发现 `import` 或 `export` 时产生错误。 使用 `scourceType: "module"` 来避免这些错误。
+ **注意：** `sourceType` 的默认值是 `"script"` 并且在发现 `import` 或 `export` 时产生错误。 使用 `scourceType: "module"` 来避免这些错误。
 
 由于 Babylon 使用了基于插件的架构，因此有一个 `plugins` 选项可以开关内置的插件。 注意 Babylon 尚未对外部插件开放此 API 接口，不排除未来会开放此API。
 
 要查看完整的插件列表，请参见 [Babylon README](https://github.com/babel/babylon/blob/master/README.md#plugins)文件。.
 
-## <a id="toc-babel-traverse"></a>[`babel-traverse`](https://github.com/babel/babel/tree/master/packages/babel-traverse)
+### <a id="toc-babel-traverse"></a>[`babel-traverse`](https://github.com/babel/babel/tree/master/packages/babel-traverse)
 
 Babel Traverse（遍历）模块维护了整棵树的状态，并且负责替换、移除和添加节点。
 
@@ -828,7 +829,7 @@ traverse(ast, {
 });
 ```
 
-## <a id="toc-babel-types"></a>[`babel-types`](https://github.com/babel/babel/tree/master/packages/babel-types)
+### <a id="toc-babel-types"></a>[`babel-types`](https://github.com/babel/babel/tree/master/packages/babel-types)
 
 Babel Types模块是一个用于 AST 节点的 Lodash 式工具库（译注：Lodash 是一个 JavaScript 函数工具库，提供了基于函数式编程风格的众多工具函数）， 它包含了构造、验证以及变换 AST 节点的方法。 该工具库包含考虑周到的工具方法，对编写处理AST逻辑非常有用。
 
@@ -957,9 +958,9 @@ t.assertBinaryExpression(maybeBinaryExpressionNode, { operator: "*" });
 
 ### <a id="toc-converters"></a>Converters（变换器）
 
-> [WIP]
+ [WIP]
 
-## <a id="toc-babel-generator"></a>[`babel-generator`](https://github.com/babel/babel/tree/master/packages/babel-generator)
+### <a id="toc-babel-generator"></a>[`babel-generator`](https://github.com/babel/babel/tree/master/packages/babel-generator)
 
 Babel Generator模块是 Babel 的代码生成器，它读取AST并将其转换为代码和源码映射（sourcemaps）。
 
@@ -1000,7 +1001,7 @@ generate(ast, {
 }, code);
 ```
 
-## <a id="toc-babel-template"></a>[`babel-template`](https://github.com/babel/babel/tree/master/packages/babel-template)
+### <a id="toc-babel-template"></a>[`babel-template`](https://github.com/babel/babel/tree/master/packages/babel-template)
 
 babel-template 是另一个虽然很小但却非常有用的模块。 它能让你编写字符串形式且带有占位符的代码来代替手动编码， 尤其是生成的大规模 AST的时候。 在计算机科学中，这种能力被称为准引用（quasiquotes）。
 
@@ -1169,7 +1170,7 @@ sebmck === dork;
 
 # <a id="toc-transformation-operations"></a>转换操作
 
-## <a id="toc-visiting"></a>访问
+### <a id="toc-visiting"></a>访问
 
 ### <a id="toc-get-the-path-of-a-sub-node"></a>获取子节点的Path
 
@@ -1311,9 +1312,9 @@ path.getStatementParent();
   * 使用 `path.container`获取路径的容器（包含所有同级节点的数组）
   * 使用 `path.listKey`获取容器的key
 
-> 这些API用于 babel-minify </>中使用的 transform-merge-sibling-variables </>插件.</p> </blockquote> 
-> 
-> ```js
+这些API用于 babel-minify </>中使用的 transform-merge-sibling-variables </>插件.</p> </blockquote> 
+
+```js
 var a = 1; // pathA, path.key = 0
 var b = 2; // pathB, path.key = 1
 var c = 3; // pathC, path.key = 2
@@ -1363,7 +1364,7 @@ outerPath.traverse({
 });
 ```
 
-## <a id="toc-manipulation"></a>处理
+### <a id="toc-manipulation"></a>处理
 
 ### <a id="toc-replacing-a-node"></a>替换一个节点
 
@@ -1403,11 +1404,11 @@ ReturnStatement(path) {
   }
 ```
 
-> **注意：</>当用多个节点替换一个表达式时，它们必须是   声明。 这是因为Babel在更换节点时广泛使用启发式算法，这意味着您可以做一些非常疯狂的转换，否则将会非常冗长。</p> </blockquote> 
-> 
-> ### <a id="toc-replacing-a-node-with-a-source-string"></a>用字符串源码替换节点
-> 
-> ```js
+ **注意：</>当用多个节点替换一个表达式时，它们必须是   声明。 这是因为Babel在更换节点时广泛使用启发式算法，这意味着您可以做一些非常疯狂的转换，否则将会非常冗长。</p> </blockquote> 
+ 
+ ### <a id="toc-replacing-a-node-with-a-source-string"></a>用字符串源码替换节点
+ 
+ ```js
 FunctionDeclaration(path) {
   path.replaceWithSourceString(`function add(a, b) {
     return a + b;
@@ -1423,11 +1424,11 @@ FunctionDeclaration(path) {
   }
 ```
 
-> **注意：</>不建议使用这个API，除非您正在处理动态的源码字符串，否则在访问者外部解析代码更有效率。</p> </blockquote> 
-> 
-> ### <a id="toc-inserting-a-sibling-node"></a>插入兄弟节点
-> 
-> ```js
+ **注意：</>不建议使用这个API，除非您正在处理动态的源码字符串，否则在访问者外部解析代码更有效率。</p> </blockquote> 
+ 
+ ### <a id="toc-inserting-a-sibling-node"></a>插入兄弟节点
+ 
+ ```js
 FunctionDeclaration(path) {
   path.insertBefore(t.expressionStatement(t.stringLiteral("Because I'm easy come, easy go.")));
   path.insertAfter(t.expressionStatement(t.stringLiteral("A little high, little low.")));
@@ -1442,14 +1443,14 @@ FunctionDeclaration(path) {
 + "A little high, little low.";
 ```
 
-> 注意：</>这里同样应该使用声明或者一个声明数组。 这个使用了在用多个节点替换一个节点</>中提到的相同的启发式算法。.</p> </blockquote> 
-> 
-> ### <a id="toc-inserting-into-a-container"></a>插入到容器（container）中
-> 
-> 如果您想要在AST节点属性中插入一个像` body </ 0>那样的数组。
+ 注意：</>这里同样应该使用声明或者一个声明数组。 这个使用了在用多个节点替换一个节点</>中提到的相同的启发式算法。.</p> </blockquote> 
+ 
+ ### <a id="toc-inserting-into-a-container"></a>插入到容器（container）中
+ 
+ 如果您想要在AST节点属性中插入一个像` body </ 0>那样的数组。
 它与 <code> insertBefore `/` insertAfter ` 类似, 但您必须指定 ` listKey ` (通常是 ` 正文 `).
-> 
-> ```js
+ 
+ ```js
 ClassMethod(path) {
   path.get('body').unshiftContainer('body', t.expressionStatement(t.stringLiteral('before')));
   path.get('body').pushContainer('body', t.expressionStatement(t.stringLiteral('after')));
@@ -1512,7 +1513,7 @@ BinaryExpression(path) {
   }
 ```
 
-## <a id="toc-scope"></a>Scope（作用域）
+### <a id="toc-scope"></a>Scope（作用域）
 
 ### <a id="toc-checking-if-a-local-variable-is-bound"></a>检查本地变量是否被绑定
 
@@ -1633,7 +1634,7 @@ FunctionDeclaration(path) {
 
 这些选项是特定于插件的，您不能访问其他插件中的选项。
 
-## <a id="toc-pre-and-post-in-plugins"></a> 插件的准备和收尾工作
+### <a id="toc-pre-and-post-in-plugins"></a> 插件的准备和收尾工作
 
 插件可以具有在插件之前或之后运行的函数。它们可以用于设置或清理/分析目的。
 
@@ -1655,7 +1656,7 @@ export default function({ types: t }) {
 }
 ```
 
-## <a id="toc-enabling-syntax-in-plugins"></a> 在插件中启用其他语法
+### <a id="toc-enabling-syntax-in-plugins"></a> 在插件中启用其他语法
 
 插件可以启用babylon plugins</>，以便用户不需要安装/启用它们。 这可以防止解析错误，而不会继承语法插件。</p> 
 
@@ -1667,7 +1668,7 @@ export default function({ types: t }) {
 }
 ```
 
-## <a id="toc-throwing-a-syntax-error"></a> 抛出一个语法错误
+### <a id="toc-throwing-a-syntax-error"></a> 抛出一个语法错误
 
 如果您想用babel-code-frame和一个消息抛出一个错误：
 
@@ -1736,7 +1737,7 @@ export default function({ types: t }) {
 生成器: ["object", "property", "computed"],
 ```
 
-> 请注意，有时在节点上可以定制的属性比``构建器</>数组包含的属性更多。 这是为了防止生成器有太多的参数。 在这些情况下，您需要手动设置属性。 一个例子是<class> ClassMethod </>.</p>
+ 请注意，有时在节点上可以定制的属性比``构建器</>数组包含的属性更多。 这是为了防止生成器有太多的参数。 在这些情况下，您需要手动设置属性。 一个例子是<class> ClassMethod </>.</p>
 </blockquote>
 
 <pre><code class="js">// Example
@@ -1750,10 +1751,10 @@ var node = t.classMethod(
 // set it manually after creation
 node.async = true;
 ``</pre> 
-> 
-> You can see the validation for the builder arguments with the `fields` object.
-> 
-> ```js
+ 
+ You can see the validation for the builder arguments with the `fields` object.
+ 
+ ```js
 fields: {
   object: {
     validate: assertNodeType("Expression")
@@ -1822,7 +1823,7 @@ You can find all of the actual [definitions here](https://github.com/babel/babel
 
 # <a id="toc-best-practices"></a>最佳实践
 
-## <a id="toc-create-helper-builders-and-checkers"></a> Create Helper Builders and Checkers
+### <a id="toc-create-helper-builders-and-checkers"></a> Create Helper Builders and Checkers
 
 It's pretty simple to extract certain checks (if a node is a certain type) into their own helper functions as well as extracting out helpers for specific node types.
 
@@ -1836,7 +1837,7 @@ function buildAssignment(left, right) {
 }
 ```
 
-## <a id="toc-avoid-traversing-the-ast-as-much-as-possible"></a>尽量避免遍历抽象语法树（AST）
+### <a id="toc-avoid-traversing-the-ast-as-much-as-possible"></a>尽量避免遍历抽象语法树（AST）
 
 Traversing the AST is expensive, and it's easy to accidentally traverse the AST more than necessary. This could be thousands if not tens of thousands of extra operations.
 
@@ -1903,7 +1904,7 @@ const MyVisitor = {
 };
 ```
 
-## <a id="toc-optimizing-nested-visitors"></a>优化嵌套的访问者对象
+### <a id="toc-optimizing-nested-visitors"></a>优化嵌套的访问者对象
 
 当您嵌套访问者（visitor）时，把它们嵌套在您的代码中可能是有意义的。
 
@@ -1976,7 +1977,7 @@ const MyVisitor = {
 };
 ```
 
-## <a id="toc-being-aware-of-nested-structures"></a>留意嵌套结构
+### <a id="toc-being-aware-of-nested-structures"></a>留意嵌套结构
 
 有时候在考虑给定的转换时，可能会忘记给定的转换结构可以是嵌套的。
 
@@ -2021,7 +2022,7 @@ const MyVisitor = {
 }
 `</pre> 
 
-## <a id="toc-unit-testing"></a>单元测试
+### <a id="toc-unit-testing"></a>单元测试
 
 有几种主要的方法来测试babel插件：快照测试，AST测试和执行测试。 对于这个例子，我们将使用 jest </>，因为它支持盒外快照测试。 我们在这里创建的示例是托管在这个 repo</>.</p> 
 
@@ -2158,4 +2159,4 @@ pluginTester({
 
 * * *
 
-> ***对于将来的更新，请跟随 @thejameskyle </>和 @babeljs </> 的Twitter。</em></strong></p> </blockquote>
+ ***对于将来的更新，请跟随 @thejameskyle </>和 @babeljs </> 的Twitter。</em></strong></p> </blockquote>
